@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЛР-1: Мій застосунок</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+    <header>
+        
+        <h1>Список заявок на доступ до лабораторії</h1>
+        
+    </header>
+
+
+    <main>
+        <p>Для створення заявки на доступ до лабораторії заповніть форму нижче та натисніть <strong>"Додати"</strong>. </p> 
+        <p>Після цього Ваша заявка відобразиться у списку нижче.</p>
+    
+        <div class="layout">
+        <section id="form">
+        <h2>Форма для створення заявки</h2>
+        <form id="createForm" novalidate>
+        
+            <!--поля для вводу-->
+
+            <div class="field">
+                <label for="userInput">Користувач:</label>
+                <input id="userInput" type="text" required placeholder = "Введіть прізвище та ім'я" />
+                <p class="error-text" id="userError"></p>
+            </div>
+
+            <div class="field">
+                <label for="dateTimeInput">Дата та час відвідування:</label>
+                <input id = "dateTimeInput" type = "datetime-local" name = "Date" required> 
+                <p class="error-text" id="dateTimeError"></p>
+            </div>
+
+            <div class="field">
+                <label for="accessTypeSelect">Тип доступу:</label>
+                <select id="accessTypeSelect" required>
+                <option value=""></option>
+                <option value="Student">Студентський</option>
+                <option value="Research">Дослідницький</option>
+                <option value="Admin">Адміністративний</option>
+                </select>
+                <p class="error-text" id="accessTypeError"></p>
+            </div>
+        
+        
+        
+            <div class="field">
+                <label for="commentInput"> Коментар: </label> 
+                <textarea id="commentInput" rows="4" required></textarea>
+                <p class="error-text" id="commentInputError"></p>
+            </div>
+            
+            <div class="field">
+                <label for="statusSelect">Статус</label>
+                <select id="statusSelect" required>
+                    <option value="Pending" selected>Pending</option>
+                
+                </select>
+            </div>
+        
+            <div class="buttons">
+                <button type="submit">Додати</button>
+                <button type="button" class = "deleteBtn "id="deleteBtn">Видалити</button>
+            </div>
+
+    
+        </form> 
+        </section>
+
+        <!--таблиця зі списком заявок-->
+        <section id="createTable">
+        <h2>Список заявок на доступ до лабораторії</h2>
+
+        <table id="itemsTable">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Користувач</th>
+            <th>Дата</th>
+            <th>Тип доступу</th>
+            <th>Коментар</th>
+            <th>Статус</th>
+        </tr>
+        </thead>
+        <tbody id="itemsTableBody">
+    
+        
+      
+        </tbody>
+        </table>
+        </section>
+     </div>
+    </main>
+
+
+    <footer>
+
+    </footer>
+
+</body>
+
+
+</html>
+
