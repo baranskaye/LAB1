@@ -1,0 +1,150 @@
+const express = require("express");
+const repo = require("../repositories/requestsRepo");
+const { all } = require("../db/dbClient");
+
+const router = express.Router();
+
+// GET all
+router.get("/", async (req, res, next) => {
+  try {
+    const data = await repo.getAll();
+    res.json({data});
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/with-users", async (req, res, next) => {
+  try {
+    const data = await require("../db/dbClient").all(`
+      SELECT 
+        r.id,
+        r.comment,
+        r.status,
+        r.createdAt,
+        u.name as userName
+      FROM Requests r
+      JOIN Users u ON u.id = r.userId
+      ORDER BY r.id DESC
+    `);
+
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.get("/filter", async (req, res, next) => {
+  try {
+    const { status, userId } = req.query;
+
+    let sql = "SELECT * FROM Requests WHERE 1=1";
+
+    if (status) {
+      sql += ` AND status = '${status}'`;
+    }
+
+    if (userId) {
+      sql += ` AND userId = ${Number(userId)}`;
+    }
+
+    sql += " ORDER BY createdAt DESC";
+
+    const { all } = require("../db/dbClient");
+    const data = await all(sql);
+
+    res.json({ data });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// GET by id
+router.get("/:id", async (req, res, next) => {
+  try {
+    const item = await repo.getById(req.params.id);
+
+    if (!item) {
+      return res.status(404).json({ error: {
+        code: "NOT_FOUND",
+        message: "Ресурс не знайдено."
+      }
+     });
+    }
+
+    res.json(item);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// POST
+router.post("/", async (req, res, next) => {
+  try {
+    const { userId, comment } = req.body;
+
+    if (!userId || !comment) {
+      return res.status(400).json({ error: {
+        code: "VALIDATION_ERROR",
+        message: "Необхідні userId та коментар."
+      },
+         });
+    }
+
+    const created = await repo.create(req.body);
+    res.status(201).json(created);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put("/:id", async (req, res, next) => {
+  try {
+    const { comment, status } = req.body;
+
+    if (!comment && !status) {
+      return res.status(400).json({
+        error: {
+          code: "VALIDATION_ERROR",
+          message: "Немає даних для оновлення."
+        }
+      });
+    }
+
+    const updated = await repo.update(req.params.id, req.body);
+
+    if (!updated) {
+      return res.status(404).json({
+        error: {
+          code: "NOT_FOUND",
+          message: "Ресурс не знайдено."
+        }
+      });
+    }
+
+    res.json(updated);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// DELETE
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const ok = await repo.remove(req.params.id);
+
+    if (!ok) {
+      return res.status(404).json({ error: {
+        code: "NOT_FOUND",
+        message: "Ресурс не знайдено."
+      },  });
+    }
+
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+module.exports = router;
