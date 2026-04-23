@@ -33,7 +33,6 @@ module.exports = async function () {
     );
   `);
 
-  // 👇 ОЦЕ ГОЛОВНЕ
   const tables = await all(`
     SELECT name FROM sqlite_master WHERE type='table';
   `);
