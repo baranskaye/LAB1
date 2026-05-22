@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ЛР-1: Мій застосунок</title>
+    <title>Доступ до лабораторії</title>
     <link rel="stylesheet" href="styles.css" />
-    <script src="app.js" defer></script>
+    <script type = "module" src="app.js" defer></script>
 </head>
 
 <body>
@@ -80,12 +80,21 @@
         </form> 
         </section>
 
+        <section id="allEntities">
+            <h2> Для показу деталей оберіть параметр зі списку нижче.</h2>
+            <select id="entitySelect">
+                <option value="requests">Заявки</option>
+                <option value="users">Користувачі</option>
+                <option value="comments">Список коментарів</option>
+            </select>
+        </section>
+
         <!--таблиця зі списком заявок-->
         <section id="createTable">
-        <h2>Список заявок на доступ до лабораторії</h2>
+        <h2>Деталі</h2>
 
         <table id="itemsTable">
-        <thead>
+        <thead id = "tableHead">
         <tr>
             <th>ID</th>
             <th>Користувач</th>
@@ -115,14 +124,20 @@
                         <th>Rejected</th>
 
                 </thead>
-                <tbody id = "itemsStatusTable"> 
-
-                </tbody>
-
-
+                <tbody id = "itemsStatusTable"> </tbody>
             </table>
+            <input type="number" id="searchIdInput" placeholder="ID заявки">
+        <button id="searchBtn">Знайти</button>
+        <div id="detailsContainer"></div>
         </section>
      </div>
+        
+        
+    
+
+     
+
+  
     </main>
 
 

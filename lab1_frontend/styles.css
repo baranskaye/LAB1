@@ -1,67 +1,55 @@
 body {
  font-family: Arial, sans-serif;
  font-size: 16px;
+  background: #f4f4f5;
+  color: #2b2b2b;
 }
-h1 { margin-bottom: 8px; }
+
+h1 { margin-bottom: 8px; text-align: center; color: #2b2b2b;}
 h2 { margin-top: 20px; }
 
-#itemsTable { border-collapse: collapse; }
-input { padding: 6px; }
-#itemsTable { width: 100%; }
+#itemsTable {
+ width: 100%;
+ border-collapse: collapse;
+ border: 2px solid rgb(224, 199, 224);
+} 
 
-body { background: #f5f5f5; }
-section { background: #fff; }
+section { background:rgb(213,205,233); border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center;}
 
 .container {
+
  max-width: 900px;
  margin: 0 auto;
  padding: 16px;
 }
 
 .buttons {
+  margin-top: 12px;
   display: flex;
   gap: 8px; 
   justify-content: center; 
-}
-
-.buttons button {
-  padding: 6px 10px;
-  cursor: pointer;
 }
  
 .actionsTable{
 text-align: center;
 }
-
-.buttonsTable {
-  display: flex;
-  gap: 8px; 
-  justify-content: center; 
-}
-
-.buttonsTable button {
-  padding: 6px 10px;
-  cursor: pointer;
-}
- 
-.actionsTable{
-text-align: center;
-}
-
 
 table {
  width: 100%;
+ flex: 1;
+ border: 2px solid rgb(214, 191, 214);
  border-collapse: collapse;
  margin: 20px 0;
-    font-family: Arial, sans-serif;
+ font-family: Arial, sans-serif;
 }
+
 th, td {
- border: 1px solid #ccc;
+ border: 2px solid rgb(232, 210, 231);
  padding: 8px;
 }
+
 th {
- background: #eee;
- 
+ background: #e8dbf4;
 }
 
 .layout {
@@ -74,10 +62,6 @@ form {
   width: 320px;
 }
 
-table {
-  flex: 1;
-}
-
 .field {
  margin-bottom: 12px;
 }
@@ -85,6 +69,7 @@ table {
  display: block;
  margin-bottom: 4px;
 }
+
 .field input,
 .field select,
 .field textarea {
@@ -106,14 +91,12 @@ table {
  min-height: 14px; /* щоб верстка не "стрибала" при появі/зникненні тексту */
 }
 
-.buttons {
- margin-top: 12px;
- display: flex;
- gap: 8px;
-}
 button {
- padding: 8px 12px;
- border: 1px solid #888;
- border-radius: 4px;
- cursor: pointer;
+ background: #a78bfa;
+    color: rgb(44, 30, 42);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }

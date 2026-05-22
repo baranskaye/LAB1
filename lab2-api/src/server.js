@@ -10,6 +10,12 @@ const app = express();
 
 app.use(express.json());
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "http://127.0.0.1:5500"
+}));
+
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
@@ -23,13 +29,10 @@ app.use((req, res, next) => {
   next();
 });
 
-console.log(typeof requestsComments);
-
-console.log(requestsComments);
 // routes
-app.use("/api/users", usersRoutes);
-app.use("/api/requests", requestsRoutes);
-app.use("/api/comments", requestsComments);
+app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/requests", requestsRoutes);
+app.use("/api/v1/comments", requestsComments);
 
 
 // error handler

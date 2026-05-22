@@ -1,18 +1,45 @@
+import { API_BASE_URL } from "./config.js";
 
 const form = document.getElementById("createForm");
 const state = { items: [] };
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const dto = readForm();
+
+  if (!validate(dto)) {return};
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/requests`, {
+
+      method: "POST",
+      headers: {
+                "Content-Type": "application/json",
+            },
+
+      body: JSON.stringify(dto),
+    });
+
+    const result = await response.json();
+    console.log(result);
+    form.reset();
+    await loadEntity("requests");
+
+  } catch (error) {
+    console.error(error);
+  }
+});
 
 function clearErrors() {
   document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
   document.querySelectorAll('.error-text').forEach(el => el.textContent = '');
 }
 
-
 function showError(inputId, errorId, message) {
   document.getElementById(inputId).classList.add('invalid');
   document.getElementById(errorId).textContent = message;
 }
-
 
 function readForm() {
   return {
@@ -23,7 +50,6 @@ function readForm() {
     status: document.getElementById("statusSelect").value
   };
 }
-
 /*валідація*/
 
 function validate(dto) {
@@ -59,30 +85,6 @@ function validate(dto) {
   return ok;
 }
 
-/* лічильник*/
-
-/* рендер */
-function render(items = state.items) {
-  const tbody = document.getElementById("itemsTableBody");
-  tbody.innerHTML = items.map((item, index) => `
-    <tr>
-      <td>${index + 1}</td>
-      <td>${item.user}</td>
-      <td>${item.date}</td>
-      <td>${item.type}</td>
-      <td>${item.comment}</td>
-      <td>${item.status}</td>
-      <td>
-        <button type="button" class="delete-btn" data-id="${item.id}">Видалити</button>
-      </td>
-      <td> 
-        <button onclick="editItem(${index})">Редагувати</button>
-      </td>
-    </tr>
-  `).join("");
-  renderStatusTable(items)
-}
-
 /*  АГРЕГУВАННЯ */
 function renderStatusTable(items) {
 
@@ -115,67 +117,21 @@ function renderStatusTable(items) {
   console.log(count1, count2, count3)
     tbody.innerHTML = `<tr> <td> ${count1}</td>  <td> ${count2} </td> <td>${count3} </td></tr>`;
 
-
-
-  // for (let status in counts) {
-  //   const tr = document.createElement("tr");
-
-  //   const tdStatus = document.createElement("td");
-  //   tdStatus.textContent = status;
-
-  //   const tdCount = document.createElement("td");
-  //   tdCount.textContent = counts[status];
-
-  // }
 }
 
 /*кнопка редагувати в таблиці */
-let editIndex = null;
-function editItem(index) {
-  
-  const item = state.items[index];
+window.addEventListener("DOMContentLoaded", () => {
 
-  document.getElementById("userInput").value = item.user;
-  document.getElementById("dateTimeInput").value = item.date;
-  document.getElementById("accessTypeSelect").value = item.type;
-  document.getElementById("commentInput").value = item.comment;
-  document.getElementById("statusSelect").value = item.status;
+  loadEntity("requests");
 
-  editIndex = index;
-}
+  document.getElementById("entitySelect")
+    .addEventListener("change", (e) => {
 
-form.addEventListener("submit", e => {
-  e.preventDefault();
+      loadEntity(e.target.value);
 
-  const dto = readForm();
-  if (!validate(dto)) return;
-
-  if( editIndex === null) {
-
-    state.items.push({
-      id: Date.now(),
-      ...dto
-    }
-  );
-  } else {
-    state.items[editIndex] = {
-      ...state.items[editIndex],
-      ...dto
-    };
-    editIndex = null;
-  }
-
-  render();
-  renderStatusTable(state.items);
-  saveToStorage(state.items);
-  form.reset();
-  clearErrors();
-  
+  });
 
 });
-
-
-
 /*кнопка видалити у формі*/ 
 const formReset = document.getElementById("createForm");
 const clearBtn = document.getElementById("deleteBtn");
@@ -184,35 +140,222 @@ clearBtn.addEventListener("click", () => {
   formReset.reset();
 });
 
-  
-
 /*кнопка видалити в таблиці*/
+document.getElementById("itemsTableBody")
+  .addEventListener("click", async (e) => {
 
-document.getElementById("itemsTableBody").addEventListener("click", e => {
-  if (e.target.classList.contains("delete-btn")) {
-    const id = e.target.dataset.id;
-    state.items = state.items.filter(item => item.id != id);
-    render();
+    if (e.target.classList.contains("delete-btn")) {
+
+      const id = e.target.dataset.id;
+
+      const entity =
+        document.getElementById("entitySelect").value;
+
+      try {
+
+        const response = await fetch(
+          `${API_BASE_URL}/${entity}/${id}`,
+          {
+            method: "DELETE",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Не вдалося видалити запис");
+        }
+
+        await loadEntity(entity);
+
+      } catch (error) {
+
+        console.error(error);
+        alert(error.message);
+
+      }
+    }
+});
+
+/* пошук за ID*/
+document.getElementById("searchBtn").addEventListener("click", async () => {
+
+  const id = document.getElementById("searchIdInput").value;
+
+  const container = document.getElementById("detailsContainer");
+
+  try {
+
+    container.textContent = "Завантаження...";
+
+    const response = await fetch(`${API_BASE_URL}/requests/${id}`);
+
+    if (!response.ok) {
+      throw new Error("Запис не знайдено");
+    }
+
+    const item = await response.json();
+
+    container.innerHTML = `
+      <p>ID: ${item.id}</p>
+      <p>User: ${item.user}</p>
+      <p>Comment: ${item.comment}</p>
+      <p>Status: ${item.status}</p>
+    `;
+
+  } catch (error) {
+    container.textContent = error.message;
   }
 });
 
-const STORAGE_KEY = "lr1_items";
-function saveToStorage(items) {
- const json = JSON.stringify(items);
- localStorage.setItem(STORAGE_KEY, json);
- 
-}
+/* завантаження таблиці */ 
+async function loadEntity(entity) {
 
-function loadFromStorage() {
-  const json = localStorage.getItem(STORAGE_KEY);
+  try {
 
-  if (json) {
-    state.items = JSON.parse(json);
-    render();
+    const response = await fetch(`${API_BASE_URL}/${entity}`);
+
+    if (!response.ok) {
+      throw new Error("Помилка завантаження");
+    }
+
+    const data = await response.json();
+
+    const items = Array.isArray(data)
+      ? data
+      : data.data || [];
+
+    console.log(entity);
+    console.log(items);
+
+    renderEntity(entity, items);
+
+  } catch (error) {
+
+    console.error(error);
+
   }
 }
 
-loadFromStorage();
+loadEntity("requests");
 
+document.getElementById("entitySelect")
+  .addEventListener("change", (e) => {
 
+    loadEntity(e.target.value);
+
+});
+
+function renderEntity(entity, items) {
+
+  const thead = document.getElementById("tableHead");
+  const tbody = document.getElementById("itemsTableBody");
+
+  if (entity === "requests") {
+
+    thead.innerHTML = `
+      <tr>
+        <th>ID</th>
+        <th>Користувач</th>
+        <th>Дата</th>
+        <th>Тип доступу</th>
+        <th>Коментар</th>
+        <th>Статус</th>
+        <th>Видалення</th>
+        <th>Редагування</th>
+      </tr>
+    `;
+
+    tbody.innerHTML = items.map((item, index) => `
+      <tr>
+        <td>${item.id}</td>
+        <td>${item.user}</td>
+        <td>${item.date}</td>
+        <td>${item.type}</td>
+        <td>${item.comment}</td>
+        <td>${item.status}</td>
+
+        <td>
+          <button
+            type="button"
+            class="delete-btn"
+            data-id="${item.id}"
+          >
+            Видалити
+          </button>
+        </td>
+
+        <td>
+          <button onclick="editItem(${index})">
+            Редагувати
+          </button>
+        </td>
+
+      </tr>
+    `).join("");
+
+    renderStatusTable(items);
+  }
+
+  if (entity === "users") {
+
+  thead.innerHTML = `
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>Видалення</th>
+    </tr>
+  `;
+
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${item.name}</td>
+
+      <td>
+        <button
+          type="button"
+          class="delete-btn"
+          data-id="${item.id}"
+        >
+          Видалити
+        </button>
+      </td>
+
+    </tr>
+  `).join("");
+}
+
+if (entity === "comments") {
+
+  thead.innerHTML = `
+    <tr>
+      <th>ID</th>
+      <th>Request ID</th>
+      <th>Text</th>
+      <th>Created At</th>
+      <th>Видалення</th>
+    </tr>
+  `;
+
+  tbody.innerHTML = items.map(item => `
+    <tr>
+      <td>${item.id}</td>
+      <td>${item.requestId}</td>
+      <td>${item.text}</td>
+      <td>${item.createdAt}</td>
+
+      <td>
+        <button
+          type="button"
+          class="delete-btn"
+          data-id="${item.id}"
+        >
+          Видалити
+        </button>
+      </td>
+
+    </tr>
+  `).join("");
+};
+  
+}
 

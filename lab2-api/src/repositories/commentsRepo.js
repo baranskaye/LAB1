@@ -1,9 +1,5 @@
 const { all, get, run } = require("../db/dbClient");
 
-async function getAll() {
-  return all("SELECT * FROM RequestNotes ORDER BY id DESC");
-}
-
 async function create(data) {
   const now = new Date().toISOString();
 
@@ -15,17 +11,10 @@ async function create(data) {
   return get(`SELECT * FROM RequestNotes WHERE id = ${result.lastID}`);
 }
 
-async function update(id, data) {
-  const result = await run(`
-    UPDATE RequestNotes
-    SET text = '${data.text}'
-    WHERE id = ${Number(id)}
-  `);
-
-  if (result.changes === 0) return null;
-
-  return get(`SELECT * FROM RequestNotes WHERE id = ${Number(id)}`);
+async function getAll() {
+  return all("SELECT * FROM RequestNotes ORDER BY id DESC");
 }
+
 
 async function remove(id) {
   const result = await run(`
@@ -35,4 +24,4 @@ async function remove(id) {
   return result.changes > 0;
 }
 
-module.exports = { getAll, create, update, remove };
+module.exports = { getAll, create, remove };
