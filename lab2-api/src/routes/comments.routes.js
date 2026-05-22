@@ -17,8 +17,12 @@ router.post("/", async (req, res, next) => {
     const { requestId, text } = req.body;
 
     if (!requestId || !text) {
-      return res.status(400).json({ error: "requestId and text required" });
-    }
+      return res.status(400).json({ error: {
+        code: "VALIDATION_ERROR",
+        message: "Необхідні requestId та текст коментаря."
+      }
+         });
+    };
 
     const created = await repo.create(req.body);
     res.status(201).json(created);
@@ -33,7 +37,10 @@ router.put("/:id", async (req, res, next) => {
 
     if (!text) {
       return res.status(400).json({
-        error: "text required"
+        error: {
+        code: "VALIDATION_ERROR",
+        message: "text required"
+        }
       });
     }
 
@@ -41,7 +48,10 @@ router.put("/:id", async (req, res, next) => {
 
     if (!updated) {
       return res.status(404).json({
-        error: "Not found"
+        error: {
+          code: "NOT_FOUND",
+          message: "Ресурс не знайдено."
+        }
       });
     }
 
@@ -57,7 +67,11 @@ router.delete("/:id", async (req, res, next) => {
 
     if (!ok) {
       return res.status(404).json({
-        error: "Not found"
+
+        error: {
+          code: "NOT_FOUND",
+          message: "Ресурс не знайдено."
+        }
       });
     }
 

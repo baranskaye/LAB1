@@ -17,17 +17,45 @@ async function getById(id) {
   `);
 }
 
+// СТАТИСТИКА
+async function getStatsByStatus() {
+
+  return await all(`
+    SELECT
+      status,
+      COUNT(*) as count
+    FROM Requests
+    GROUP BY status
+  `);
+}
+
 // POST
 async function create(data) {
+
   const now = new Date().toISOString();
 
   const result = await run(`
-    INSERT INTO Requests (userId, comment, status, createdAt)
-    VALUES (${Number(data.userId)}, '${data.comment}', '${data.status}', '${now}')
+    INSERT INTO Requests (
+      user,
+      date,
+      type,
+      comment,
+      status,
+      createdAt
+    )
+    VALUES (
+      '${data.user}',
+      '${data.date}',
+      '${data.type}',
+      '${data.comment}',
+      '${data.status}',
+      '${now}'
+    )
   `);
 
   return await get(`
-    SELECT * FROM Requests WHERE id = ${result.lastID}
+    SELECT * FROM Requests
+    WHERE id = ${result.lastID}
   `);
 }
 
@@ -57,6 +85,7 @@ async function update (id, data) {
   return get(`SELECT * FROM Requests WHERE id = ${Number(id)}`);
 };
 
+
 // DELETE
 async function remove(id) {
   const result = await run(`
@@ -66,4 +95,4 @@ async function remove(id) {
   return result.changes > 0;
 }
 
-module.exports = { getAll, getById, create, remove, update };
+module.exports = { getAll, getById, create, remove, update, getStatsByStatus };

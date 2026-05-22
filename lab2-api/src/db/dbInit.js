@@ -14,12 +14,13 @@ module.exports = async function () {
 
   await run(`
     CREATE TABLE IF NOT EXISTS Requests (
-      id INTEGER PRIMARY KEY,
-      userId INTEGER NOT NULL,
-      comment TEXT NOT NULL,
-      status TEXT,
-      createdAt TEXT NOT NULL,
-      FOREIGN KEY (userId) REFERENCES Users(id) ON DELETE CASCADE
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user TEXT NOT NULL,
+    date TEXT NOT NULL,
+    type TEXT NOT NULL,
+    comment TEXT NOT NULL,
+    status TEXT NOT NULL,
+    createdAt TEXT NOT NULL
     );
   `);
 
@@ -33,7 +34,24 @@ module.exports = async function () {
     );
   `);
 
-  // 👇 ОЦЕ ГОЛОВНЕ
+  await run(`
+  INSERT INTO Users (name)
+  VALUES ('Lisa')
+`);
+
+await run(`
+  INSERT INTO RequestNotes (
+    requestId,
+    text,
+    createdAt
+  )
+  VALUES (
+    1,
+    'Тестовий коментар',
+    '${new Date().toISOString()}'
+  )
+`);
+  
   const tables = await all(`
     SELECT name FROM sqlite_master WHERE type='table';
   `);
@@ -42,8 +60,9 @@ module.exports = async function () {
 
   await run(`
     CREATE INDEX IF NOT EXISTS idx_requests_userId
-    ON Requests (userId);
+    ON Requests (user);
   `);
 
   console.log("INIT DB DONE");
 };
+

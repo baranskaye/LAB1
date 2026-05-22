@@ -32,31 +32,48 @@ router.get("/with-users", async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-});
+})
 
 router.get("/filter", async (req, res, next) => {
-  try {
-    const { status, userId } = req.query;
 
-    let sql = "SELECT * FROM Requests WHERE 1=1";
+  try {
+
+    const { status, user } = req.query;
+
+    let sql = `
+      SELECT * FROM Requests
+      WHERE 1=1
+    `;
 
     if (status) {
       sql += ` AND status = '${status}'`;
     }
 
-    if (userId) {
-      sql += ` AND userId = ${Number(userId)}`;
+    if (user) {
+      sql += ` AND user = '${user}'`;
     }
 
     sql += " ORDER BY createdAt DESC";
 
     const { all } = require("../db/dbClient");
+
     const data = await all(sql);
 
     res.json({ data });
+
   } catch (err) {
+
     next(err);
+
   }
+});
+router.get("/stat", async (req,res, next) => {
+try {
+  const data = await repo.getStatsByStatus();
+  res.json({data})
+} catch (e){
+next(e)
+}
 });
 
 // GET by id
@@ -78,20 +95,30 @@ router.get("/:id", async (req, res, next) => {
   }
 });
 
+
+
+
 // POST
 router.post("/", async (req, res, next) => {
   try {
-    const { userId, comment } = req.body;
+    const { user, date, type, comment, status } = req.body;
 
-    if (!userId || !comment) {
+    if (!user || !comment || !date || !type || !status) {
       return res.status(400).json({ error: {
         code: "VALIDATION_ERROR",
-        message: "Необхідні userId та коментар."
+        message: "Заповніть необхідні поля форми."
       },
          });
     }
 
-    const created = await repo.create(req.body);
+    const created = await repo.create({
+      user,
+      date,
+      type,
+      comment,
+      status
+    });
+
     res.status(201).json(created);
   } catch (err) {
     next(err);
