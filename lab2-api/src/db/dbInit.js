@@ -20,7 +20,8 @@ module.exports = async function () {
     type TEXT NOT NULL,
     comment TEXT NOT NULL,
     status TEXT NOT NULL,
-    createdAt TEXT NOT NULL
+    createdAt TEXT NOT NULL,
+    ownerUserId INTEGER NOT NULL
     );
   `);
 

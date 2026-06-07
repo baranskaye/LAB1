@@ -38,6 +38,8 @@ router.get("/filter", async (req, res, next) => {
 
   try {
 
+    const { all } = require("../db/dbClient");
+
     const { status, user } = req.query;
 
     let sql = `
@@ -45,28 +47,27 @@ router.get("/filter", async (req, res, next) => {
       WHERE 1=1
     `;
 
+    const params = [];
+
     if (status) {
-      sql += ` AND status = '${status}'`;
+      sql += ` AND status = ?`;
+      params.push(status);
     }
 
     if (user) {
-      sql += ` AND user = '${user}'`;
+      sql += ` AND user = ?`;
+      params.push(user);
     }
 
-    sql += " ORDER BY createdAt DESC";
-
-    const { all } = require("../db/dbClient");
-
-    const data = await all(sql);
-
+    sql += ` ORDER BY createdAt DESC`;
+    const data = await all(sql, params);
     res.json({ data });
 
   } catch (err) {
-
-    next(err);
-
+      next(err);
   }
 });
+
 router.get("/stat", async (req,res, next) => {
 try {
   const data = await repo.getStatsByStatus();
@@ -78,25 +79,56 @@ next(e)
 
 // GET by id
 router.get("/:id", async (req, res, next) => {
+
   try {
+
     const item = await repo.getById(req.params.id);
 
     if (!item) {
-      return res.status(404).json({ error: {
-        code: "NOT_FOUND",
-        message: "Ресурс не знайдено."
-      }
-     });
+
+      return res.status(404).json({
+        error: {
+          code: "NOT_FOUND",
+          message: "Ресурс не знайдено"
+        }
+      });
+
+    }
+
+    const currentUser = 
+      req.header("X-Demo-User");
+
+    if (!currentUser) {
+      return res.status(401).json({
+        error: {
+          code: "UNAUTHORIZED",
+          message: "Передайте X-Demo-User"
+        }
+      });
+    } 
+
+    console.log("HEADER:", currentUser);
+    console.log("ITEM USER:", item.user);
+
+    if (item.user !== currentUser) {
+
+      return res.status(403).json({
+        error: {
+          code: "FORBIDDEN",
+          message: "Немає доступу"
+        }
+      });
     }
 
     res.json(item);
+
   } catch (err) {
+
     next(err);
+
   }
+
 });
-
-
-
 
 // POST
 router.post("/", async (req, res, next) => {
@@ -154,6 +186,7 @@ router.put("/:id", async (req, res, next) => {
     next(err);
   }
 });
+
 
 // DELETE
 router.delete("/:id", async (req, res, next) => {

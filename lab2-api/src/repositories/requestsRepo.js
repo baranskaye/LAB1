@@ -34,6 +34,8 @@ async function create(data) {
 
   const now = new Date().toISOString();
 
+  console.log("CREATE REPO VERSION 777");
+  
   const result = await run(`
     INSERT INTO Requests (
       user,
@@ -42,6 +44,7 @@ async function create(data) {
       comment,
       status,
       createdAt
+      
     )
     VALUES (
       '${data.user}',

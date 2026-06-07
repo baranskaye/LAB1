@@ -31,36 +31,6 @@ router.post("/", async (req, res, next) => {
   }
 });
 
-router.put("/:id", async (req, res, next) => {
-  try {
-    const { text } = req.body;
-
-    if (!text) {
-      return res.status(400).json({
-        error: {
-        code: "VALIDATION_ERROR",
-        message: "text required"
-        }
-      });
-    }
-
-    const updated = await repo.update(req.params.id, req.body);
-
-    if (!updated) {
-      return res.status(404).json({
-        error: {
-          code: "NOT_FOUND",
-          message: "Ресурс не знайдено."
-        }
-      });
-    }
-
-    res.json(updated);
-  } catch (e) {
-    next(e);
-  }
-});
-
 router.delete("/:id", async (req, res, next) => {
   try {
     const ok = await repo.remove(req.params.id);
