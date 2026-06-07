@@ -3,6 +3,22 @@ import { API_BASE_URL } from "./config.js";
 const form = document.getElementById("createForm");
 const state = { items: [] };
 
+let editId = null;
+
+function editItem(index) {
+
+  const item = state.items[index];
+
+  document.getElementById("userInput").value = item.user;
+  document.getElementById("dateTimeInput").value = item.date;
+  document.getElementById("accessTypeSelect").value = item.type;
+  document.getElementById("commentInput").value = item.comment;
+  document.getElementById("statusSelect").value = item.status;
+
+  editId = item.id;
+}
+
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -194,7 +210,7 @@ document.getElementById("searchBtn").addEventListener("click", async () => {
 
     const item = await response.json();
 
-    container.innerHTML = `
+    container.textContent = `
       <p>ID: ${item.id}</p>
       <p>User: ${item.user}</p>
       <p>Comment: ${item.comment}</p>
@@ -225,6 +241,7 @@ async function loadEntity(entity) {
 
     console.log(entity);
     console.log(items);
+    state.items = items;
 
     renderEntity(entity, items);
 
@@ -260,39 +277,54 @@ function renderEntity(entity, items) {
         <th>Коментар</th>
         <th>Статус</th>
         <th>Видалення</th>
-        <th>Редагування</th>
+       
       </tr>
     `;
 
-    tbody.innerHTML = items.map((item, index) => `
-      <tr>
-        <td>${item.id}</td>
-        <td>${item.user}</td>
-        <td>${item.date}</td>
-        <td>${item.type}</td>
-        <td>${item.comment}</td>
-        <td>${item.status}</td>
+    tbody.innerHTML = "";
 
-        <td>
-          <button
-            type="button"
-            class="delete-btn"
-            data-id="${item.id}"
-          >
-            Видалити
-          </button>
-        </td>
+items.forEach(item => {
 
-        <td>
-          <button onclick="editItem(${index})">
-            Редагувати
-          </button>
-        </td>
+  const tr = document.createElement("tr");
 
-      </tr>
-    `).join("");
+  const tdId = document.createElement("td");
+  tdId.textContent = item.id;
 
-    renderStatusTable(items);
+  const tdUsername = document.createElement("td");
+  tdUsername.textContent = item.user;
+
+  const tdCreatedAt = document.createElement("td");
+  tdCreatedAt.textContent = item.createdAt;
+
+  const tdAccessType = document.createElement("td");
+  tdAccessType.textContent = item.type;
+
+  const tdComment = document.createElement("td");
+  tdComment.textContent = item.comment;
+
+  const tdStatus = document.createElement("td");
+  tdStatus.textContent = item.status;
+
+  const tdDelete = document.createElement("td");
+  const deleteBtn = document.createElement("button");
+  deleteBtn.textContent = "Видалити";
+  deleteBtn.classList.add("delete-btn");
+  deleteBtn.dataset.id = item.id;
+  tdDelete.appendChild(deleteBtn);
+  
+  tr.append(
+    tdId,
+    tdUsername,
+    tdCreatedAt,
+    tdAccessType,
+    tdComment,
+    tdStatus,
+    tdDelete
+  );
+
+  tbody.appendChild(tr);
+
+})
   }
 
   if (entity === "users") {
